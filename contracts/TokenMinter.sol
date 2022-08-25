@@ -8,7 +8,8 @@ import "hardhat/console.sol";
 
 import "./TokenInterface.sol";
 
-contract tokenMinter {
+/// @dev TokenMinter implements TokenInterface.
+contract TokenMinter {
     TokenInterface public token;
 
     constructor(address tokenAddress) {
