@@ -39,8 +39,6 @@ contract TokenShop {
 
         ) = priceFeed.latestRoundData();
         return price;
-
-        // return 1614_40343597;
     }
 
     /**
