@@ -15,14 +15,12 @@ contract TokenShop {
 
     AggregatorV3Interface internal immutable priceFeed;
 
-    constructor(address minter) {
+    constructor(address minter, address _priceFeed) {
         tokenMinter = TokenInterface(minter);
 
         // GOERLI address 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
         // Rinkeby address 0x8A753747A1Fa494EC906cE90E9f37563A8AF630e
-        priceFeed = AggregatorV3Interface(
-            0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
-        );
+        priceFeed = AggregatorV3Interface(_priceFeed);
     }
 
     /**
