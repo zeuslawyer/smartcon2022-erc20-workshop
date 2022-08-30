@@ -27,11 +27,11 @@ contract TokenShop {
      * Returns the latest price up to 8 decimals.
      * Something like 1614_40343597.
      */
-    function getLatestPrice() public view returns (int) {
+    function getLatestPrice() public view returns (int256) {
         (
             ,
             /*uint80 roundID*/
-            int price, /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/
+            int256 price, /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/
             ,
             ,
 
@@ -45,15 +45,11 @@ contract TokenShop {
      * pricePaidWei is in Wei, so 18 decimal places.
      * Returns the number, to 18 decimal places.
      */
-    function calculateTokens(uint256 pricePaidWei)
-        public
-        view
-        returns (uint256)
-    {
+    function calculateTokens(uint256 pricePaidWei) public view returns (uint256) {
         // Convert price feed from 8 decimals to 18 decimal places
-        uint256 ethUsd = uint256(getLatestPrice()) * 1e10;
+        uint256 ethUsdPrice = uint256(getLatestPrice()) * 1e10;
 
-        uint256 numTokens = pricePaidWei * (ethUsd / TOKEN_PRICE_USD);
+        uint256 numTokens = pricePaidWei * (ethUsdPrice / TOKEN_PRICE_USD);
 
         console.log("num tokens done...");
 

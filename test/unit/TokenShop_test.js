@@ -1,6 +1,7 @@
 const { deployments, ethers, network } = require("hardhat")
 const { developmentChains } = require("../../chain-configs")
 const { assert, expect } = require("chai")
+const { BigNumber } = require("ethers")
 
 !developmentChains.includes(network.name)
     ? describe.skip
@@ -15,18 +16,18 @@ const { assert, expect } = require("chai")
               tokenShop = await ethers.getContract("TokenShop")
           })
 
-          it("should ", async () => {
-              console.log(" OK ZUBIN ", {
-                  feed: priceFeed.address,
-                  token: token.address,
-                  minter: tokenMinter.address,
-                  shop: tokenShop.address,
-              })
+          it("should correctly calculate tokens to be minted", async () => {
+              const onePointSevenEth = ethers.utils.parseEther("1.7")
+              const expectedNumTokens = "8500000000000000000" // 8.5 tokens, to 18 decimals.
 
-              // TODO: RESUME HERE.
-              /*               1. test user 1 who is not deployer can NOT mint from the Shop
-              2. test deployer who is owner CAN mint from shop, have token balance
-              3. transfer ownership to TokenMinter and then user 1, and user 2 each can mint
-              4. test that on minting an event is emitted. */
+              const numTokens = await tokenShop.calculateTokens(onePointSevenEth) // returns to 18 decimals.
+
+              assert(parseInt(numTokens.toString()) / 1e18),
+                  8.5,
+                  "numToken is not the expected value of 8.5"
+
+              expect(numTokens.toString()).to.equal(expectedNumTokens)
+              // Alternative expect.
+              expect(numTokens.eq(ethers.BigNumber.from(expectedNumTokens))).to.be.true
           })
       })
