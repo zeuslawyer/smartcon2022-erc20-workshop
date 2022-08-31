@@ -6,7 +6,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const chainId = network.config.chainId
 
     const DECIMALS = "8"
-    const INITIAL_PRICE = "10000000000" // $100 with 8 decimals
+    const INITIAL_PRICE = (100 * 1e8).toString() // $100 with 8 decimals
 
     //   If we are on a local development network, we need to deploy mocks!
     if (chainId == 31337) {
@@ -34,6 +34,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
             "Please run 'yarn hardhat console --network localhost' to interact with the deployed smart contracts!"
         )
         log("----------------------------------------------------------")
+    } else {
+        log(`Skipping Mocks deployment on non-local network ${network.name}, id ${chainId}`)
     }
 }
 module.exports.tags = ["all", "mocks"]

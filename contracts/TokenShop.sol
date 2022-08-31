@@ -51,8 +51,6 @@ contract TokenShop {
 
         uint256 numTokens = pricePaidWei * (ethUsdPrice / TOKEN_PRICE_USD);
 
-        console.log("num tokens done...");
-
         return numTokens;
     }
 
