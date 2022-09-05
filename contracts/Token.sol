@@ -9,6 +9,8 @@ import "hardhat/console.sol";
 
 // By default Ownable contracts are owned by the deployer.
 contract SmartConToken is ERC20, Ownable {
+    event TokenMinted(address indexed caller, address indexed recipient, uint256 amount);
+
     constructor() ERC20("SmartConToken", "SCT") {}
 
     /**
@@ -16,5 +18,7 @@ contract SmartConToken is ERC20, Ownable {
      */
     function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
+        emit TokenMinted(tx.origin, to, amount);
+        console.log("Origin, sender and recipient", tx.origin, msg.sender, to);
     }
 }

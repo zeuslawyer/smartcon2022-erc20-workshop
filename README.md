@@ -32,3 +32,11 @@ This project demonstrates
 9. Call `.transferOwnership()` in the Token contract and pass it the address of the TokenMinter. Check that the new `.owner()` returns the TokenMinter.
 10. Go back to TokenShop and call `.Pay()` again with `1700000000000000000` wei as value. This time, the transaction should succeed. Check by going back to Token and calling `balanceOf()` with the address that called `.Pay()`. It should produce a number which when divided by 1e18 (10 ^ 18) will produce the number of tokens you minted.
 11. Optionally, you can call `.transferOwnership()` but from inside the TokenMinter contract, to transfer ownership back to another address/ the deployer address.
+
+
+# LIVE TESTNET DEPLOYMENTS ON GOERLI
+Date: 5 September 2022 AEST.
+
+- SmartConToken: `0xc1352254e04C94b36D9d53AEC7c2d389Eb7D8281`
+- TokenMinter: `0xD753A1c190091368EaC67bbF3Ee5bAEd265aC420`
+- TokenShop: `0x893664CaAA483d205D8d3c5125a14D21652FD284`

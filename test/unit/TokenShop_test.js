@@ -1,4 +1,4 @@
-const { deployments, ethers, network } = require("hardhat")
+const { deployments, ethers, network, getNamedAccounts } = require("hardhat")
 const { developmentChains } = require("../../chain-configs")
 const { expect } = require("chai")
 
@@ -96,12 +96,56 @@ const { expect } = require("chai")
               })
           })
 
-          describe("Correctly records owner of TokenMinter", () => {
-              it("Token owner is the contract deployer", async () => {
+          describe("Correctly identifies and changes owner of TokenMinter", () => {
+              it("Deployer owns token contract", async () => {
                   let [deployer] = await ethers.getSigners()
-
                   const defaultOwner = await token.owner()
                   expect(defaultOwner).to.equal(deployer.address)
+              })
+
+              it("Transfer ownership to TokenMinter", async () => {
+                  let [deployer] = await ethers.getSigners()
+                  await token.transferOwnership(tokenMinter.address)
+                  const owner = await token.owner()
+                  expect(owner).to.not.equal(deployer.address)
+                  expect(owner).to.equal(tokenMinter.address)
+              })
+          })
+
+          describe("Only owner can mint", () => {
+              it("Minting from TokenShop not allowed until Minter owns contract", async () => {
+                  const sendValue = ethers.utils.parseEther("0.5")
+                  const [deployer] = await ethers.getSigners()
+
+                  await expect(
+                      tokenShop.connect(deployer).pay({ value: sendValue })
+                  ).to.be.revertedWith("Ownable: caller is not the owner")
+
+                  await token.transferOwnership(tokenMinter.address)
+
+                  await expect(tokenShop.connect(deployer).pay({ value: sendValue })).to.not.be
+                      .reverted
+
+                  const tokenContractBal = await ethers.provider.getBalance(tokenShop.address)
+                  await expect(tokenContractBal).to.equal(sendValue)
+
+                  // TODO ZUBIN check deployer's balance
+              })
+          })
+
+          describe.only("Correctly listens to events", () => {
+              it("Token correctly emits events", async () => {
+                  const [_, user1] = await ethers.getSigners()
+                  const sendValue = ethers.utils.parseEther("0.5")
+
+                  console.log("User 1", user1.address)
+                  console.log("TokenMinter", tokenMinter.address)
+
+                  await token.transferOwnership(tokenMinter.address)
+                  await expect(tokenShop.connect(user1).pay({ value: sendValue })).to.emit(
+                      token,
+                      "TokenMinted"
+                  )
               })
           })
       })
