@@ -112,7 +112,7 @@ const { expect } = require("chai")
               })
           })
 
-          describe("Only owner can mint", () => {
+          describe.only("Minting works correctly", () => {
               it("Minting from TokenShop not allowed until Minter owns contract", async () => {
                   const sendValue = ethers.utils.parseEther("0.5")
                   const [deployer] = await ethers.getSigners()
@@ -128,18 +128,34 @@ const { expect } = require("chai")
 
                   const tokenContractBal = await ethers.provider.getBalance(tokenShop.address)
                   await expect(tokenContractBal).to.equal(sendValue)
+              })
 
-                  // TODO ZUBIN check deployer's balance
+              it("Correctly updates the buyer's balance", async () => {
+                  const [_, user1, user2] = await ethers.getSigners()
+
+                  const sendValue1 = ethers.utils.parseEther("0.5")
+                  const expectedValue1 = "2500000000000000000"
+
+                  const sendValue2 = ethers.utils.parseEther("0.2")
+                  const expectedValue2 = "1000000000000000000"
+
+                  await token.transferOwnership(tokenMinter.address)
+                  await tokenShop.connect(user1).pay({ value: sendValue1 })
+                  await tokenShop.connect(user2).pay({ value: sendValue2 })
+
+                  await expect((await token.balanceOf(user1.address)).toString()).to.equal(
+                      expectedValue1
+                  )
+                  await expect((await token.balanceOf(user2.address)).toString()).to.equal(
+                      expectedValue2
+                  )
               })
           })
 
-          describe.only("Correctly listens to events", () => {
+          describe("Correctly listens to events", () => {
               it("Token correctly emits events", async () => {
                   const [_, user1] = await ethers.getSigners()
                   const sendValue = ethers.utils.parseEther("0.5")
-
-                  console.log("User 1", user1.address)
-                  console.log("TokenMinter", tokenMinter.address)
 
                   await token.transferOwnership(tokenMinter.address)
                   await expect(tokenShop.connect(user1).pay({ value: sendValue })).to.emit(

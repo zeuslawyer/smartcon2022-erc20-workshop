@@ -19,12 +19,21 @@ developmentChains.includes(network.name)
               token = await ethers.getContract("SmartConToken")
           })
 
-          describe("Token Contract Owner is Deployer", async () => {
-              it("FIXME: dummy test", async () => {
-                  accounts = await ethers.getSigners()
-                  deployer = accounts[0]
-                  let tokenOwner = await token.owner()
-                  expect(tokenOwner).to.equal(deployer.address)
-              })
+          it("FIXME: dummy test", async () => {
+              console.log("LKOOK HERE ", token.address)
+
+              accounts = await ethers.getSigners()
+              deployer = accounts[0]
+              let tokenOwner = await token.owner()
+              expect(tokenOwner).to.equal(deployer.address)
           })
+
+          //   describe("Token Contract Owner is Deployer", async () => {
+          //       it("FIXME: dummy test", async () => {
+          //           accounts = await ethers.getSigners()
+          //           deployer = accounts[0]
+          //           let tokenOwner = await token.owner()
+          //           expect(tokenOwner).to.equal(deployer.address)
+          //       })
+          //   })
       })
