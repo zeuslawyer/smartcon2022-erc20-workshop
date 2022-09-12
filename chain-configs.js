@@ -16,7 +16,7 @@ const chainConfigs = {
 }
 
 // Supported networks include live testnets but not mainnet for this project, as we don't want to push to mainnet accidentally.
-const supportedNetworks = ["rinkeby", "goerli", "hardhat", "localhost"]
+const supportedNetworks = ["goerli", "hardhat", "localhost"]
 const developmentChains = ["hardhat", "localhost"]
 const VERIFICATION_BLOCK_CONFIRMATIONS = 6
 

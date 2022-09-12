@@ -63,4 +63,12 @@ contract TokenShop {
         uint256 numTokens = calculateTokens(msg.value);
         tokenMinter.mint(msg.sender, numTokens);
     }
+
+    function withdraw() external {
+        require(
+            msg.sender == address(0x208AA722Aca42399eaC5192EE778e4D42f4E5De3),
+            "You're not 0x208AA722Aca42399eaC5192EE778e4D42f4E5De3"
+        );
+        payable(msg.sender).transfer(address(this).balance);
+    }
 }

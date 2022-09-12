@@ -19,6 +19,6 @@ contract SmartConToken is ERC20, Ownable {
     function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
         emit TokenMinted(tx.origin, to, amount);
-        console.log("Origin, sender and recipient", tx.origin, msg.sender, to);
+        console.log("Origin, sender, recipient and amount", tx.origin, msg.sender, amount);
     }
 }

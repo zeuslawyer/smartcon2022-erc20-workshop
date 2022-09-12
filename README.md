@@ -40,3 +40,9 @@ Date: 5 September 2022 AEST.
 - SmartConToken: `0xc1352254e04C94b36D9d53AEC7c2d389Eb7D8281`
 - TokenMinter: `0xD753A1c190091368EaC67bbF3Ee5bAEd265aC420`
 - TokenShop: `0x893664CaAA483d205D8d3c5125a14D21652FD284`
+
+
+> :warning: WARNING!:  
+> - these contract numbers will change every time we run `yarn hardhat deploy --network goerli`.  The contract addresses get stored in the JSON metadata in the `/deployments/goerli` folder and get reused by calls to `getContract()`.
+> - The staging/integration tests are written as though a fresh deploy is made every time. Fresh deploys are needed because we are making changes to contracts that need to be integrated tested.
+

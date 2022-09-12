@@ -1,7 +1,6 @@
 /* INTEGRATION TESTS
               1. test user 1 who is not deployer can NOT mint from the Shop
-              2. test deployer who is owner CAN mint from shop, have token balance
-              3. transfer ownership to TokenMinter and then user 1, and user 2 each can mint
+              3. transfer ownership to TokenMinter and then user 1 can mint via TokenShop pay()
               4. test that on minting an event is emitted.
               5. Event emit testing: https://hardhat.org/hardhat-chai-matchers/docs/overview#events
               
@@ -15,25 +14,61 @@ developmentChains.includes(network.name)
     : describe("TokenShop Integration Tests", async () => {
           let token, tokenMinter, tokenShop, priceFeed, deployer
 
-          beforeEach(async () => {
+          before(async () => {
               token = await ethers.getContract("SmartConToken")
+              tokenMinter = await ethers.getContract("TokenMinter")
+              tokenShop = await ethers.getContract("TokenShop")
           })
 
-          it("FIXME: dummy test", async () => {
-              console.log("LKOOK HERE ", token.address)
+          describe("Only Owner Can Mint", async () => {
+              it("reverts when TokenMinter is not Owner", async () => {
+                  const sendValue = ethers.utils.parseEther("0.0001")
+                  const [deployer] = await ethers.getSigners()
 
-              accounts = await ethers.getSigners()
-              deployer = accounts[0]
-              let tokenOwner = await token.owner()
-              expect(tokenOwner).to.equal(deployer.address)
+                  await expect(
+                      tokenShop.connect(deployer).pay({ value: sendValue })
+                  ).to.be.revertedWith("Ownable: caller is not the owner")
+              })
+
+              it.only("Mints tokens when Token Minter is Owner", async () => {
+                  const [deployer] = await ethers.getSigners()
+
+                  let o = await token.owner()
+                  console.log("  Token's current owner is ", o)
+
+                  //   const ownershipTransferTx = await token
+                  //       .connect(deployer)
+                  //       .transferOwnership(tokenMinter.address)
+                  //   ownershipTransferTx.wait(1)
+
+                  const sendValue = ethers.utils.parseEther("0.000001")
+
+                  // We use the deploying account as the buyer for testing on testnets as other addresses are not configured
+                  // and may not have enough ETH to buy SmartCon Tokens.
+                  const deployerStartingBalance = await token.balanceOf(deployer.address)
+
+                  let payTx = await tokenShop.connect(deployer).pay({ value: sendValue })
+                  await payTx.wait(1)
+
+                  // Check tokenShop balance is increased.
+                  const tokenContractBal = await ethers.provider.getBalance(tokenShop.address)
+                  //   expect(tokenContractBal.toString()).to.equal(
+                  //       Number(sendValue.toString())
+                  //   )
+
+                  const deployerEndingBalance = await token.balanceOf(deployer.address)
+                  const tokensReceived = deployerEndingBalance.sub(deployerStartingBalance)
+                  const numTokensMinted = await tokenShop.calculateTokens(sendValue)
+
+                  console.log(
+                      "Starting, ending and received : ",
+                      deployerStartingBalance.toString(),
+                      deployerEndingBalance.toString(),
+                      tokensReceived.toString(),
+                      numTokensMinted.toString()
+                  )
+
+                  expect(tokensReceived.toString()).to.equal(numTokensMinted.toString())
+              })
           })
-
-          //   describe("Token Contract Owner is Deployer", async () => {
-          //       it("FIXME: dummy test", async () => {
-          //           accounts = await ethers.getSigners()
-          //           deployer = accounts[0]
-          //           let tokenOwner = await token.owner()
-          //           expect(tokenOwner).to.equal(deployer.address)
-          //       })
-          //   })
       })

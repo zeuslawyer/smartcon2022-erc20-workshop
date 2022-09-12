@@ -112,7 +112,7 @@ const { expect } = require("chai")
               })
           })
 
-          describe.only("Minting works correctly", () => {
+          describe("Minting works correctly", () => {
               it("Minting from TokenShop not allowed until Minter owns contract", async () => {
                   const sendValue = ethers.utils.parseEther("0.5")
                   const [deployer] = await ethers.getSigners()
@@ -152,16 +152,50 @@ const { expect } = require("chai")
               })
           })
 
-          describe("Correctly listens to events", () => {
+          describe("Event based state changes", () => {
+              beforeEach(async () => {
+                  await token.transferOwnership(tokenMinter.address)
+              })
+              afterEach(async function () {
+                  token.removeAllListeners()
+              })
+
               it("Token correctly emits events", async () => {
                   const [_, user1] = await ethers.getSigners()
                   const sendValue = ethers.utils.parseEther("0.5")
 
-                  await token.transferOwnership(tokenMinter.address)
-                  await expect(tokenShop.connect(user1).pay({ value: sendValue })).to.emit(
-                      token,
-                      "TokenMinted"
-                  )
+                  const numTokens = await tokenShop.calculateTokens(sendValue)
+
+                  await expect(tokenShop.connect(user1).pay({ value: sendValue }))
+                      .to.emit(token, "TokenMinted")
+                      .withArgs(user1.address, user1.address, numTokens) // Origin, Recipient, NumTokens
+              })
+
+              it("Updates Buyer and Token Contracts correctly", async function () {
+                  // non fat arrow function for `this`.
+                  this.timeout(300000) // 300 seconds.
+
+                  const [_, user1] = await ethers.getSigners()
+                  const sendValue = ethers.utils.parseEther("0.166")
+                  const numTokens = await tokenShop.calculateTokens(sendValue)
+
+                  await new Promise(async (resolve, reject) => {
+                      token.once("TokenMinted", async () => {
+                          console.log("YEAH!")
+                          try {
+                              const earnings = await ethers.provider.getBalance(tokenShop.address)
+                              const userBalance = await token.balanceOf(user1.address)
+                              expect(earnings.toString()).to.equal(sendValue.toString())
+                              expect(userBalance.toString()).to.equal(numTokens.toString())
+                              resolve(earnings)
+                          } catch (error) {
+                              reject(error)
+                          }
+                      })
+
+                      // Fire the chain of contract calls.
+                      await tokenShop.connect(user1).pay({ value: sendValue })
+                  })
               })
           })
       })
